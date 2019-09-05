@@ -2,6 +2,7 @@ package com.example.shh;
 
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.CountDownTimer;
 import android.service.notification.StatusBarNotification;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -25,55 +27,59 @@ import rjsv.circularview.CircleViewAnimation;
 import rjsv.circularview.enumerators.AnimationStyle;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
-        String[] country = { "5 min", " 10 min", " 15 min", "30 min", "45 min", "1 hour"};
+        String[] country = { "5", " 10", " 15", "30", "45", "60"};
         private static final String TAG = "";
+        TextView ReadAboutUs;
     Spinner spin;
     public static Switch shh;
     private ArrayList<StatusBarNotification> list = new ArrayList<>();
     private CircleView circleView;
-
+    private CountDownTimer timer;
+    private TextView shhTextView;
+    private boolean isShh = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getSupportActionBar().hide();
         shh=findViewById(R.id.Shh);
-//        spin = findViewById(R.id.action_bar_spinner);
-        circleView = findViewById(R.id.circular);
-        CircleViewAnimation circleViewAnimation = new CircleViewAnimation(circleView)
-                .setAnimationStyle(AnimationStyle.CONTINUOUS)
-                .setDuration(circleView.getProgressValue())
-                .setCustomAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-                        // Animation Starts
-                    }
+        ReadAboutUs=findViewById(R.id.AboutUs);
+        ReadAboutUs.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this,TestActivity.class));
+            }
+        });
 
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        // Animation Ends
-                    }
+        spin = findViewById(R.id.action_bar_spinner);
+        spin.setOnItemSelectedListener(this);
 
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-                }).setTimerOperationOnFinish(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Run when the duration reaches 0. Regardless of the AnimationLifecycle or main thread.
-                        // Runs and triggers on background.
-                    }
-                })
-                .setCustomInterpolator(new LinearInterpolator());
-        circleView.setAnimation(circleViewAnimation);
-//        spin.setOnItemSelectedListener(this);
 
         //Creating the ArrayAdapter instance having the country list
         ArrayAdapter aa = new ArrayAdapter(this,android.R.layout.simple_spinner_item,country);
         aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         //Setting the ArrayAdapter data on the Spinner
-//        spin.setAdapter(aa);
+        spin.setAdapter(aa);
+        shhTextView = findViewById(R.id.start_shhing);
+
+
+        shhTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!isShh){
+                    start(Integer.parseInt(spin.getSelectedItem().toString()));
+                    isShh = true;
+                }
+                else{
+                    cancel();
+                    isShh = false;
+                }
+            }
+        });
+
+//        spin.setOnItemSelectedListener(this);
+
+
 
         shh.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -113,5 +119,33 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+    private void start(int minutes){
+        timer = new CountDownTimer(minutes * 60 * 1000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                shhTextView.setText("" + millisUntilFinished / 1000 + " seconds");
+            }
+
+            @Override
+            public void onFinish() {
+               shhTextView.setText("Done!!!");
+                NotificationMonitoringService.setCondition(false);
+                shh.setChecked(false);
+            }
+        };
+        shh.setChecked(true);
+        NotificationMonitoringService.setCondition(true);
+
+        timer.start();
+    }
+
+    private void cancel(){
+        NotificationMonitoringService.setCondition(false);
+        shh.setChecked(false);
+        if(timer != null){
+            timer.cancel();
+            timer = null;
+        }
     }
 }
