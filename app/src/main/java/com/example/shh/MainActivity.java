@@ -1,18 +1,14 @@
 package com.example.shh;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.CountDownTimer;
 import android.service.notification.StatusBarNotification;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -23,8 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import rjsv.circularview.CircleView;
-import rjsv.circularview.CircleViewAnimation;
-import rjsv.circularview.enumerators.AnimationStyle;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
         String[] country = { "5", " 10", " 15", "30", "45", "60"};
