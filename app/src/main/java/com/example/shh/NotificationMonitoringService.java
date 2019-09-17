@@ -31,8 +31,12 @@ public class NotificationMonitoringService extends NotificationListenerService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (condition)
-            cancelAllNotifications();
+//        if (condition)
+//            cancelAllNotifications();
+
+        Intent intent = new Intent(getString(R.string.intent_filter));
+        intent.putExtra(getString(R.string.notification_text), sbn.getNotification().tickerText);
+        sendBroadcast(intent);
         Log.d(TAG, "onNotificationPosted: sbnList: " + sbnList.size());
         Log.d(TAG, "onNotificationPosted: retrievedList" + retrievedList.size());
         Log.d(TAG, "CANCELLED NOTIFICATIONS");//Cancel all the notifications . No Disturbance
